@@ -1,80 +1,153 @@
-// Fetch the countries data from the API
-fetch('https://restcountries.com/v3.1/all')
-    .then(response => response.json())
-    .then(data => {
-        // Get the select control
-        const countrySelect = document.getElementById('countrySelect');
+document.addEventListener('DOMContentLoaded', () => {
+    const countrySelect = document.getElementById('countrySelect');
+    const countryDetailsSection = document.getElementById('countryDetailsSection');
+    const comparisonContainer = document.getElementById('comparisonContainer');
+    
+    let countries = [];
+    let languages = [];
+    let currencies = [];
 
-        // Loop through the data and create an option for each country
-        data.forEach(country => {
-            const option = document.createElement('option');
-            option.value = country.cca2; // Using country code as the value
-            option.textContent = country.name.common; // Using the common name of the country
-            countrySelect.appendChild(option);
-        });
-
-        // Add event listener for when a country is selected
-        countrySelect.addEventListener('change', (event) => {
-            const countryCode = event.target.value;
-            if (countryCode) {
-                // Fetch and display country information
-                fetchCountryInfo(countryCode);
-            } else {
-                clearCountryInfo();
-            }
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching the country data:', error);
-        showToast('Error fetching the country data.');
-    });
-
-// Function to fetch and display country information
-function fetchCountryInfo(countryCode) {
-    fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`)
+    // Fetch countries data
+    fetch('https://restcountries.com/v3.1/all')
         .then(response => response.json())
         .then(data => {
-            const country = data[0];
-            document.getElementById('countryInfo').classList.remove('hidden');
-            document.getElementById('name').textContent = `Common Name: ${country.name.common}`;
-            document.getElementById('officialName').textContent = `Official Name: ${country.name.official}`;
-            document.getElementById('capital').textContent = `Capital: ${country.capital ? country.capital.join(', ') : 'N/A'}`;
-            document.getElementById('region').textContent = `Region: ${country.region}`;
-            document.getElementById('subregion').textContent = `Subregion: ${country.subregion || 'N/A'}`;
-            document.getElementById('population').textContent = `Population: ${country.population.toLocaleString()}`;
-            document.getElementById('languages').textContent = `Languages: ${Object.values(country.languages).join(', ')}`;
-            document.getElementById('flag').src = country.flags.png;
-            document.getElementById('flag').alt = `${country.name.common} flag`;
+            countries = data;
+            populateCountrySelect();
+            populateFilters();
         })
-        .catch(error => {
-            console.error('Error fetching the country information:', error);
-            showToast('Error fetching the country information.');
+        .catch(error => showToast(`Error fetching countries: ${error.message}`));
+
+    // Populate country select
+    function populateCountrySelect() {
+        countrySelect.innerHTML = '<option value="" disabled selected>Select a country</option>';
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.cca3;
+            option.textContent = country.name.common;
+            countrySelect.appendChild(option);
         });
-}
+    }
 
-// Function to clear country information
-function clearCountryInfo() {
-    document.getElementById('countryInfo').classList.add('hidden');
-    document.getElementById('name').textContent = '';
-    document.getElementById('officialName').textContent = '';
-    document.getElementById('capital').textContent = '';
-    document.getElementById('region').textContent = '';
-    document.getElementById('subregion').textContent = '';
-    document.getElementById('population').textContent = '';
-    document.getElementById('languages').textContent = '';
-    document.getElementById('flag').src = '';
-    document.getElementById('flag').alt = '';
-}
+    // Populate filter selects
+    function populateFilters() {
+        const languageFilter = document.getElementById('languageFilter');
+        const currencyFilter = document.getElementById('currencyFilter');
 
-// Function to show toast notifications
-function showToast(message) {
-    Toastify({
-        text: message,
-        duration: 3000, // Duration in milliseconds
-        close: true, // Show close button
-        gravity: "top", // Positioning of toast (top/bottom)
-        position: "right", // Positioning of toast (left/right/center)
-        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)", // Background color
-        stopOnFocus: true, // Stop the timer when hovered
-    }).showToast();
-}
+        // Populate languages filter
+        languageFilter.innerHTML = '<option value="" disabled selected>Filter by Language</option>';
+        languageFilter.innerHTML += '<option value="">All Languages</option>'; // Add "All Languages" option
+        languages = [...new Set(countries.flatMap(country => Object.values(country.languages || {})))];
+        languages.forEach(language => {
+            const option = document.createElement('option');
+            option.value = language;
+            option.textContent = language;
+            languageFilter.appendChild(option);
+        });
+
+        // Populate currencies filter
+        currencyFilter.innerHTML = '<option value="" disabled selected>Filter by Currency</option>';
+        currencyFilter.innerHTML += '<option value="">All Currencies</option>'; // Add "All Currencies" option
+        currencies = [...new Set(countries.flatMap(country => Object.values(country.currencies || {}).map(currency => currency.name)))];
+        currencies.forEach(currency => {
+            const option = document.createElement('option');
+            option.value = currency;
+            option.textContent = currency;
+            currencyFilter.appendChild(option);
+        });
+    }
+
+    // Handle country selection
+    countrySelect.addEventListener('change', event => {
+        const countryCode = event.target.value;
+        const country = countries.find(c => c.cca3 === countryCode);
+
+        if (country) {
+            displayCountryDetails(country);
+        } else {
+            showToast('Country not found.');
+        }
+    });
+
+    // Display country details
+    function displayCountryDetails(country) {
+        const commonName = document.getElementById('commonName');
+        const officialName = document.getElementById('officialName');
+        const capital = document.getElementById('capital');
+        const region = document.getElementById('region');
+        const population = document.getElementById('population');
+        const languages = document.getElementById('languages');
+        const currencies = document.getElementById('currencies');
+        const flag = document.getElementById('flag');
+
+        commonName.textContent = country.name.common;
+        officialName.textContent = country.name.official;
+        capital.textContent = country.capital ? country.capital.join(', ') : 'N/A';
+        region.textContent = country.region;
+        population.textContent = country.population.toLocaleString();
+        languages.textContent = Object.values(country.languages || {}).join(', ');
+        currencies.textContent = Object.values(country.currencies || {}).map(c => c.name).join(', ');
+        flag.src = country.flags.svg;
+    }
+
+    // Show toast notifications
+    function showToast(message) {
+        Toastify({
+            text: message,
+            duration: 3000,
+            close: true,
+            gravity: "top", // `top` or `bottom`
+            position: 'right', // `left`, `center` or `right`
+            backgroundColor: "#333", // Background color
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            onClick: function(){} // Callback after click
+        }).showToast();
+    }
+
+    // Filter and display comparison section
+    const languageFilter = document.getElementById('languageFilter');
+    const currencyFilter = document.getElementById('currencyFilter');
+
+    languageFilter.addEventListener('change', updateComparison);
+    currencyFilter.addEventListener('change', updateComparison);
+
+    function updateComparison() {
+        const selectedLanguage = languageFilter.value;
+        const selectedCurrency = currencyFilter.value;
+
+        const filteredCountries = countries.filter(country => {
+            const countryLanguages = Object.values(country.languages || {});
+            const countryCurrencies = Object.values(country.currencies || {}).map(c => c.name);
+
+            return (selectedLanguage === '' || selectedLanguage === undefined || countryLanguages.includes(selectedLanguage)) &&
+                   (selectedCurrency === '' || selectedCurrency === undefined || countryCurrencies.includes(selectedCurrency));
+        });
+
+        displayComparison(filteredCountries);
+    }
+
+    function displayComparison(countries) {
+        comparisonContainer.innerHTML = '';
+
+        countries.forEach(country => {
+            const countryDiv = document.createElement('div');
+            countryDiv.classList.add('country-details');
+
+            countryDiv.innerHTML = `
+                <div class="info">
+                    <p><strong>Common Name:</strong> ${country.name.common}</p>
+                    <p><strong>Official Name:</strong> ${country.name.official}</p>
+                    <p><strong>Capital:</strong> ${country.capital ? country.capital.join(', ') : 'N/A'}</p>
+                    <p><strong>Region:</strong> ${country.region}</p>
+                    <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
+                    <p><strong>Languages:</strong> ${Object.values(country.languages || {}).join(', ')}</p>
+                    <p><strong>Currencies:</strong> ${Object.values(country.currencies || {}).map(c => c.name).join(', ')}</p>
+                </div>
+                <div class="flag-container">
+                    <img src="${country.flags.svg}" alt="${country.name.common} Flag">
+                </div>
+            `;
+
+            comparisonContainer.appendChild(countryDiv);
+        });
+    }
+});

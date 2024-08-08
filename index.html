@@ -3,36 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Country Selector</title>
+    <title>Select A Country</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
-    <h1>Select a Country</h1>
-    <label for="countrySelect">Choose a country:</label>
-    <select id="countrySelect">
-        <option value="">Select a country</option>
-    </select>
-    
-    <div id="countryInfo" class="hidden">
-        <h2>Country Information</h2>
-        <div class="country-details">
-            <div class="info">
-                <p id="name"></p>
-                <p id="officialName"></p>
-                <p id="capital"></p>
-                <p id="region"></p>
-                <p id="subregion"></p>
-                <p id="population"></p>
-                <p id="languages"></p>
+    <header>
+        <h1>Select A Country</h1>
+    </header>
+    <div class="container">
+        <section id="countryDetailsSection">
+            <h2>Country Details</h2>
+            <select id="countrySelect" aria-label="Select a country"></select>
+            <div class="country-details">
+                <div class="info">
+                    <p><strong>Common Name:</strong> <span id="commonName"></span></p>
+                    <p><strong>Official Name:</strong> <span id="officialName"></span></p>
+                    <p><strong>Capital:</strong> <span id="capital"></span></p>
+                    <p><strong>Region:</strong> <span id="region"></span></p>
+                    <p><strong>Population:</strong> <span id="population"></span></p>
+                    <p><strong>Languages:</strong> <span id="languages"></span></p>
+                    <p><strong>Currencies:</strong> <span id="currencies"></span></p>
+                </div>
+                <div class="flag-container">
+                    <img id="flag" src="" alt="Country Flag">
+                </div>
             </div>
-            <div class="flag-container">
-                <img id="flag" alt="Country Flag">
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <div class="filters">
+            <h2>Filter Countries Details</h2>
+            <select id="languageFilter" aria-label="Filter by Language">
+                <option value="" disabled selected>Filter by Language</option>
+                <option value="">All Languages</option>
+            </select>
+            <select id="currencyFilter" aria-label="Filter by Currency">
+                <option value="" disabled selected>Filter by Currency</option>
+                <option value="">All Currencies</option>
+            </select>
+        </div>
+
+        <section id="comparisonContainer">
+        </section>
+    </div>
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </body>
 </html>
+
