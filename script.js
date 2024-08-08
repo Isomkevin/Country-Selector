@@ -26,6 +26,7 @@ fetch('https://restcountries.com/v3.1/all')
     })
     .catch(error => {
         console.error('Error fetching the country data:', error);
+        showToast('Error fetching the country data.');
     });
 
 // Function to fetch and display country information
@@ -47,6 +48,7 @@ function fetchCountryInfo(countryCode) {
         })
         .catch(error => {
             console.error('Error fetching the country information:', error);
+            showToast('Error fetching the country information.');
         });
 }
 
@@ -62,4 +64,17 @@ function clearCountryInfo() {
     document.getElementById('languages').textContent = '';
     document.getElementById('flag').src = '';
     document.getElementById('flag').alt = '';
+}
+
+// Function to show toast notifications
+function showToast(message) {
+    Toastify({
+        text: message,
+        duration: 3000, // Duration in milliseconds
+        close: true, // Show close button
+        gravity: "top", // Positioning of toast (top/bottom)
+        position: "right", // Positioning of toast (left/right/center)
+        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)", // Background color
+        stopOnFocus: true, // Stop the timer when hovered
+    }).showToast();
 }
