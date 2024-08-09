@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             close: true,
             gravity: "top", // `top` or `bottom`
             position: 'right', // `left`, `center` or `right`
-            backgroundColor: "#333", // Background color
+            background: '#0f3443', // Background color
             stopOnFocus: true, // Prevents dismissing of toast on hover
             onClick: function(){} // Callback after click
         }).showToast();
